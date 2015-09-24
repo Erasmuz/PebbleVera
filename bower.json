@@ -1,0 +1,22 @@
+{
+  "name": "PebbleVera",
+  "version": "0.0.1",
+  "homepage": "https://github.com/Erasmuz/PebbleVera",
+  "authors": [
+    "Erasmuz <halfeatencake@gmail.com>"
+  ],
+  "description": "PebbleVera",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "Slate": "pebble-slate#~0.0.3"
+  }
+}
