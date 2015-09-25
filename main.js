@@ -1,4 +1,4 @@
-$submintButton = $('#submitButton');
+$submitButton = $('#submitButton');
 
 $submitButton.on('click', function() {
   console.log("SUBMIT!");
