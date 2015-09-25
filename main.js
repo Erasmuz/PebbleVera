@@ -10,8 +10,8 @@ function getAndStoreConfigData() {
   var $password = $('#password');
   
   var options = {
-    username: $username.value(),
-    password: $password.value()
+    username: $username.val(),
+    password: $password.val()
   }
   
   localStorage.username = options.username;
