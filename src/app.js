@@ -9,6 +9,7 @@ var Vector2 = require('vector2');
 var Settings = require('settings');
 var Sha1 = require('sha1');
 var ajax = require('ajax');
+var base64 = require('base64');
 
 var main = new UI.Card({
   title: 'Pebble.js',
@@ -80,50 +81,68 @@ function refreshVera() {
   var password = Settings.option('password');
   
   var shaSeed = Sha1.hash(username + password + "oZ7QE6LcLJp6fiWzdqZc");
-  var urlString = "https://us-autha11.mios.com/autha/auth/username/" + username + "?SHA1Password=" + shaSeed + "&PK_Oem=1";
-  
+  //var urlString = "https://us-autha11.mios.com/autha/auth/username/{0}?SHA1Password={1}&PK_Oem=1".format(username,shaSeed);
+	var urlString = "https://vera-us-oem-autha11.mios.com/autha/auth/username/" + username + "?SHA1Password=" + shaSeed + "&PK_Oem=1";
   
   ajax({
     url: urlString,
-    type: 'json'
+    type: 'GET',
+    dataType: 'text'
   },
   function(data) {
     // Success!
-    getSessionToken(data);
+    getSessionToken(JSON.parse(data));
   },
   function(error) {
     // Failure!
-    console.log('Failed fetching vera data: ' + error);
+    console.log('Failed getting user token: ' + error);
   });
 }
 
 function getSessionToken(tokenData) {
   ajax({
-    url: 'https://us-authd11.mios.com/info/session/token',
+    url: 'https://vera-us-oem-authd11.mios.com/info/session/token',
+    type: "GET",
+    dataType: "text",
     headers: { 'MMSAuth': tokenData.Identity, 'MMSAuthSig': tokenData.IdentitySignature }
   },
   function(data) {
     // Success!
-    console.log('Successfully fetched vera! ' + JSON.stringify(data));
-    getServerDevice(tokenData, String(data));
+    console.log('Successfully fetched vera! ' + data);
+    getServerDevice(tokenData, data);
   },
   function(error) {
     // Failure!
-    console.log('Failed fetching vera data: ' + error);
+    console.log('Failed getting session token: ' + error);
   });
 }
 
 function getServerDevice(tokenData, sessionToken) {
   ajax({
-    url: 'https://us-authd11.mios.com/locator/locator/locator',
+    url: 'https://vera-us-oem-authd11.mios.com/locator/locator/locator',
+    type: "GET",
+		dataType: "json",
     headers: { 'MMSSession': sessionToken }
   },
   function(data) {
     // Success!
-    console.log('Successfully fetched vera! ' + JSON.stringify(data));
+    
+    console.log('Successfully fetched vera! ' + JSON.parse(data));
+    if (Object.keys(JSON.parse(data)).length === 0) {
+      //Must not be on LAN?  There should be a better way to check for this?
+      var json = JSON.parse(base64.decode(tokenData.Identity));
+      var PK_Account = json.PK_Account;
+      
+      console.log(PK_Account);
+      
+    }
   },
   function(error) {
     // Failure!
-    console.log('Failed fetching vera data: ' + error);
+    console.log('Failed getting server device: ' + error);
   });
 }
+
+
+
+//USE atob to get 64 bit encoding for remote access!
