@@ -6,6 +6,9 @@
 
 var UI = require('ui');
 var Vector2 = require('vector2');
+var Settings = require('settings');
+var Sha1 = require('sha1');
+var ajax = require('ajax');
 
 var main = new UI.Card({
   title: 'Pebble.js',
@@ -59,26 +62,68 @@ main.on('click', 'down', function(e) {
   card.show();
 });
 
-/**
-* Open Configuration Listener
-*/
-Pebble.addEventListener('showConfiguration', function(e) {
-  // Show config page
-  Pebble.openURL('http://erasmuz.github.io/PebbleVera');
-});
+// Set a configurable with the open callback
+Settings.config(
+  { url: 'http://erasmuz.github.io/PebbleVera' },
+  function(e) {
+    // Show the raw response if parsing failed
+    if (e.failed) {
+      console.log(e.response);
+    } else {
+      refreshVera();
+    }
+  }
+);
 
-/** 
-* Close Configuration Listener
-*/
-Pebble.addEventListener('webviewclosed', function(e) {
-  var configData = JSON.parse(decodeURIComponent(e.response));
+function refreshVera() {
+  var username = Settings.option('username');
+  var password = Settings.option('password');
   
-  console.log("Values: " + JSON.stringify(configData));
+  var shaSeed = Sha1.hash(username + password + "oZ7QE6LcLJp6fiWzdqZc");
+  var urlString = "https://us-autha11.mios.com/autha/auth/username/" + username + "?SHA1Password=" + shaSeed + "&PK_Oem=1";
   
-  // Send settings to Pebble watchapp
-  Pebble.sendAppMessage(configData, function() {
-    console.log('Sent config data to Pebble');  
-  }, function() {
-    console.log('Failed to send config data!');
+  
+  ajax({
+    url: urlString,
+    type: 'json'
+  },
+  function(data) {
+    // Success!
+    getSessionToken(data);
+  },
+  function(error) {
+    // Failure!
+    console.log('Failed fetching vera data: ' + error);
   });
-});
+}
+
+function getSessionToken(tokenData) {
+  ajax({
+    url: 'https://us-authd11.mios.com/info/session/token',
+    headers: { 'MMSAuth': tokenData.Identity, 'MMSAuthSig': tokenData.IdentitySignature }
+  },
+  function(data) {
+    // Success!
+    console.log('Successfully fetched vera! ' + JSON.stringify(data));
+    getServerDevice(tokenData, String(data));
+  },
+  function(error) {
+    // Failure!
+    console.log('Failed fetching vera data: ' + error);
+  });
+}
+
+function getServerDevice(tokenData, sessionToken) {
+  ajax({
+    url: 'https://us-authd11.mios.com/locator/locator/locator',
+    headers: { 'MMSSession': sessionToken }
+  },
+  function(data) {
+    // Success!
+    console.log('Successfully fetched vera! ' + JSON.stringify(data));
+  },
+  function(error) {
+    // Failure!
+    console.log('Failed fetching vera data: ' + error);
+  });
+}
