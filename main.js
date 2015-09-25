@@ -14,8 +14,8 @@ function submitHandler() {
 
 function loadOptions() {
   if (localStorage.username) {
-    $('#username').value = localStorage.username;
-    $('#password').value = localStorage.password;
+    $('#username')[0].value = localStorage.username;
+    $('#password')[0].value = localStorage.password;
   }  
 }
 
