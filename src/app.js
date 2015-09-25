@@ -69,7 +69,7 @@ Settings.config(
     if (e.failed) {
       console.log(e.response);
     } else {
-      Auth.refreshVera(Settings.option('username'), Settings.option('password'));
+      Auth.getUserToken(Settings.option('username'), Settings.option('password'), Auth.getSessionToken);
     }
   }
 );
