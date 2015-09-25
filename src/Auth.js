@@ -9,6 +9,8 @@
 var Sha1 = require('sha1');
 var ajax = require('ajax');
 var base64 = require('base64');
+var Settings = require('settings');
+var completedCallback;
 
 var Auth = {};
 
@@ -20,6 +22,7 @@ Auth.serverRelayURL = "";
 * Gets a user token from the vera servers.
 */
 Auth.getUserToken = function(username, password, callback) {
+  completedCallback = callback;
   var shaSeed = Sha1.hash(username + password + "oZ7QE6LcLJp6fiWzdqZc");
   var urlString = "https://vera-us-oem-autha11.mios.com/autha/auth/username/" + username + "?SHA1Password=" + shaSeed + "&PK_Oem=1";
   
@@ -29,17 +32,16 @@ Auth.getUserToken = function(username, password, callback) {
     dataType: 'text'
   },
   function(data) {
-    // Success!
-    callback(JSON.parse(data));
-    //Auth.getSessionToken(JSON.parse(data));
+    Auth.getSessionToken(JSON.parse(data));
   },
   function(error) {
-    // Failure!
     console.log('Failed getting user token: ' + error);
   });
 };
 
-
+/**
+* Gets a session token from a server.
+*/
 Auth.getSessionToken = function(tokenData, server, callback) {
   server = typeof server !== 'undefined' ? server : Auth.defaultTokenServer;
   callback = typeof callback !== 'undefined' ? callback : Auth.getServerDevice;
@@ -51,8 +53,6 @@ Auth.getSessionToken = function(tokenData, server, callback) {
     headers: { 'MMSAuth': tokenData.Identity, 'MMSAuthSig': tokenData.IdentitySignature }
   },
   function(data) {
-    // Success!
-    console.log('Successfully fetched vera! ' + data);
     callback(tokenData, data);
   },
   function(error) {
@@ -61,7 +61,11 @@ Auth.getSessionToken = function(tokenData, server, callback) {
   });
 };
 
-
+/**
+* Gets a list of devices on the LAN.  If nothing is returned it then
+*  gets all available remotely connected devices.
+*   TODO: Handle available controllers on LAN
+*/
 Auth.getServerDevice = function(tokenData, sessionToken) {
   ajax({
     url: 'https://vera-us-oem-authd11.mios.com/locator/locator/locator',
@@ -70,12 +74,11 @@ Auth.getServerDevice = function(tokenData, sessionToken) {
     headers: { 'MMSSession': sessionToken }
   },
   function(data) {
-    // Success!
-    
-    console.log('Successfully fetched vera! ' + JSON.parse(data));
     if (Object.keys(JSON.parse(data)).length === 0) {
       //Must be remote connection?  There should be a better way to check for this?
       Auth.getSessionToken(tokenData, "https://" + tokenData.Server_Account + "/info/session/token", Auth.getRemoteDevices);
+    } else {
+      //TODO: Handle LAN Controller
     }
   },
   function(error) {
@@ -84,7 +87,9 @@ Auth.getServerDevice = function(tokenData, sessionToken) {
   });
 };
 
-
+/**
+* Gets the collection of controllers available.
+*/
 Auth.getRemoteDevices = function(tokenData, sessionToken) {
   var json = JSON.parse(base64.decode(tokenData.Identity));
   var PK_Account = json.PK_Account;
@@ -96,19 +101,19 @@ Auth.getRemoteDevices = function(tokenData, sessionToken) {
     headers: { 'MMSSession': sessionToken }
   },
   function(data) {
-    // Success!
-    console.log('Successfully fetched items! ' + data);
+    // Only supporting a single controller for now
     var controller = JSON.parse(data).Devices[0];
     Auth.getRelayServer(controller, tokenData, sessionToken);
     
   },
   function(error) {
-    // Failure!
     console.log('Failed getting session token: ' + error);
   });
 };
 
-
+/**
+* Gets the relay server to use to make requests to.
+*/
 Auth.getRelayServer = function(controllerData, tokenData, sessionToken) {
   Auth.PK_Device = controllerData.PK_Device;
   
@@ -119,19 +124,17 @@ Auth.getRelayServer = function(controllerData, tokenData, sessionToken) {
     headers: { 'MMSSession': sessionToken }
   },
   function(data) {
-    // Success!
-    console.log('Successfully fetched relay! ' + data);
     Auth.serverRelay = JSON.parse(data).Server_Relay;
-    
     Auth.getSessionToken(tokenData, "https://" + Auth.serverRelay + "/info/session/token", Auth.pollDevices);
   },
   function(error) {
-    // Failure!
     console.log('Failed getting Relay Server token: ' + error);
   });
 };
   
-
+/**
+* Polls the abrreviated data from the relay server.
+*/
 Auth.pollDevices = function(tokenData, sessionToken) {
   ajax({
     url: "https://" + Auth.serverRelay + "/relay/relay/relay/device/" + Auth.PK_Device + "/port_3480/data_request?id=sdata",
@@ -140,11 +143,10 @@ Auth.pollDevices = function(tokenData, sessionToken) {
     headers: { 'MMSSession': sessionToken }
   },
   function(data) {
-    // Success!
-    console.log('Finally got device info! ' + data);
+    Settings.option('data', JSON.parse(data));
+    completedCallback();
   },
   function(error) {
-    // Failure!
     console.log('Failed getting Relay Server token: ' + error);
   });
 };
