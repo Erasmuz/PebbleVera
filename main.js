@@ -1,9 +1,23 @@
-$submitButton = $('#submitButton');
+(function() {
+  loadOptions();
+  submitHandler();
+})();
 
-$submitButton.on('click', function() {
-  var return_to = getQueryParam('return_to', 'pebblejs://close#');
-  document.location = return_to + encodeURIComponent(JSON.stringify(getAndStoreConfigData()));
-});
+function submitHandler() {
+  $submitButton = $('#submitButton');
+  
+  $submitButton.on('click', function() {
+    var return_to = getQueryParam('return_to', 'pebblejs://close#');
+    document.location = return_to + encodeURIComponent(JSON.stringify(getAndStoreConfigData()));
+  });
+}
+
+function loadOptions() {
+  if (localStorage.username) {
+    $('#username').value = localStorage.username;
+    $('#password').value = localStorage.password;
+  }  
+}
 
 function getAndStoreConfigData() {
   var $username = $('#username');
