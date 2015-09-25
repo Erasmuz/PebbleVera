@@ -1,8 +1,5 @@
 {
-    "appKeys": {
-        "username":  0,
-        "password": 1
-    },
+    "appKeys": {},
     "capabilities": [
         "configurable"
     ],

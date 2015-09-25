@@ -60,9 +60,25 @@ main.on('click', 'down', function(e) {
 });
 
 /**
-* Configuration Listener
+* Open Configuration Listener
 */
 Pebble.addEventListener('showConfiguration', function(e) {
   // Show config page
-  Pebble.openURL('https://my-website.com/config-page.html');
+  Pebble.openURL('http://erasmuz.github.io/PebbleVera');
+});
+
+/** 
+* Close Configuration Listener
+*/
+Pebble.addEventListener('webviewclosed', function(e) {
+  var configData = JSON.parse(decodeURIComponent(e.response));
+  
+  console.log("Values: " + JSON.stringify(configData));
+  
+  // Send settings to Pebble watchapp
+  Pebble.sendAppMessage(configData, function() {
+    console.log('Sent config data to Pebble');  
+  }, function() {
+    console.log('Failed to send config data!');
+  });
 });
