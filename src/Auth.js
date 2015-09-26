@@ -77,8 +77,7 @@ Auth.getServerDevice = function(tokenData, sessionToken) {
       //Must be remote connection?  There should be a better way to check for this?
       Auth.getSessionToken(tokenData, "https://" + tokenData.Server_Account + "/info/session/token", Auth.getRemoteDevices);
     } else {
-      console.log("Got Server Device. Getting Local Controller Info.");
-      console.log(JSON.parse(data).Devices[0].InternalIP);
+      // Only supporting a single controller for now
       Auth.pollLocalDevices(JSON.parse(data).Devices[0].InternalIP);
     }
   },
@@ -143,7 +142,10 @@ Auth.pollLocalDevices = function(internalIP) {
     dataType: "json"
   },
   function(data) {
-    Settings.option('data', JSON.parse(data));
+    //Persist data.
+    Settings.data('data', JSON.parse(data));
+    Pebble.localStorage.setItem('data',  JSON.parse(data));
+    
     completedCallback();
   },
   function(error) {
@@ -162,7 +164,8 @@ Auth.pollDevices = function(tokenData, sessionToken) {
     headers: { 'MMSSession': sessionToken }
   },
   function(data) {
-    Settings.option('data', JSON.parse(data));
+    //Persist data.
+    Settings.data('data', JSON.parse(data));
     completedCallback();
   },
   function(error) {

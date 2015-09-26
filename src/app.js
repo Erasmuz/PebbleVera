@@ -33,7 +33,7 @@ mainMenu.on('select', function(e) {
 });
 
 mainMenu.show();
-
+if (Settings.data('data')) refresh();
 
 // Set a configurable with the open callback
 Settings.config(
@@ -44,22 +44,24 @@ Settings.config(
       console.log(e.response);
     } else {
       console.log("Returned from settings");
-      Auth.getUserToken(Settings.option('username'), Settings.option('password'), refreshed);
+      Auth.getUserToken(Settings.option('username'), Settings.option('password'), refresh);
     }
   }
 );
 
-function refreshed() {
-  console.log("Adding items...");
+function refresh() {
+  // Get data
+  var data = Settings.data('data');
+  console.log(data);
   
   // Get Scenes
-  var scenes = Settings.option('data').scenes;
+  var scenes = data.scenes;
   for(var i = 0; i < scenes.length; i++) {
     SceneMenu.addItem(scenes[i].name, scenes[i].id);
   }
   
   // Get Devices
-  var devices = Settings.option('data').devices;
+  var devices = data.devices;
   for(i = 0; i < devices.length; i++) {
     switch (devices[i].category) {
       case 3:
