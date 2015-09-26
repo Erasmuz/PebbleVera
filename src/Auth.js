@@ -56,7 +56,6 @@ Auth.getSessionToken = function(tokenData, server, callback) {
     callback(tokenData, data);
   },
   function(error) {
-    // Failure!
     console.log('Failed getting session token: ' + error);
   });
 };
@@ -78,7 +77,9 @@ Auth.getServerDevice = function(tokenData, sessionToken) {
       //Must be remote connection?  There should be a better way to check for this?
       Auth.getSessionToken(tokenData, "https://" + tokenData.Server_Account + "/info/session/token", Auth.getRemoteDevices);
     } else {
-      //TODO: Handle LAN Controller
+      console.log("Got Server Device. Getting Local Controller Info.");
+      console.log(JSON.parse(data).Devices[0].InternalIP);
+      Auth.pollLocalDevices(JSON.parse(data).Devices[0].InternalIP);
     }
   },
   function(error) {
@@ -131,7 +132,25 @@ Auth.getRelayServer = function(controllerData, tokenData, sessionToken) {
     console.log('Failed getting Relay Server token: ' + error);
   });
 };
-  
+
+/**
+* Polls the abbreviated data from LAN controller
+*/
+Auth.pollLocalDevices = function(internalIP) {
+  ajax({
+    url: "http://" + internalIP + "/port_3480/data_request?id=sdata",
+    type: "GET",
+    dataType: "json"
+  },
+  function(data) {
+    Settings.option('data', JSON.parse(data));
+    completedCallback();
+  },
+  function(error) {
+    console.log('Failed getting local controller data: ' + error);
+  });
+};
+
 /**
 * Polls the abrreviated data from the relay server.
 */
