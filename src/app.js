@@ -33,7 +33,11 @@ mainMenu.on('select', function(e) {
 });
 
 mainMenu.show();
+// Refresh persisted data
 if (Settings.data('data')) refresh();
+// Configure connection type (LAN / Remote)
+//TODO:
+
 
 // Set a configurable with the open callback
 Settings.config(
@@ -43,7 +47,6 @@ Settings.config(
     if (e.failed) {
       console.log(e.response);
     } else {
-      console.log("Returned from settings");
       Auth.getUserToken(Settings.option('username'), Settings.option('password'), refresh);
     }
   }

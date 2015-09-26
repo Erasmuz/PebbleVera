@@ -142,10 +142,11 @@ Auth.pollLocalDevices = function(internalIP) {
     dataType: "json"
   },
   function(data) {
+    //Save the url for future requests
+    Settings.option('url', "http://" + internalIP + "/port_3480/data_request?");
+    
     //Persist data.
     Settings.data('data', JSON.parse(data));
-    Pebble.localStorage.setItem('data',  JSON.parse(data));
-    
     completedCallback();
   },
   function(error) {
@@ -164,6 +165,10 @@ Auth.pollDevices = function(tokenData, sessionToken) {
     headers: { 'MMSSession': sessionToken }
   },
   function(data) {
+    //Save the url for future requests
+    Settings.option('url', "https://" + Auth.serverRelay + "/relay/relay/relay/device/" + Auth.PK_Device + "/port_3480/data_request?");
+    Settings.option('headers', { 'MMSSession': sessionToken });
+    
     //Persist data.
     Settings.data('data', JSON.parse(data));
     completedCallback();
