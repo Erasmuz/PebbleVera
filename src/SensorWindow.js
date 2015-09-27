@@ -15,9 +15,9 @@ var SensorWindow = {};
 * Mapping of category number to key for look-up.
 */
 SensorWindow.categoryMap = { 
-  16: ["HumiditySensor1", "CurrentLevel"], 
-  17: ["TemperatureSensor1", "CurrentTemperature"], 
-  18: ["LightSensor1", "CurrentLevel"] 
+  16: ["urn:micasaverde-com:serviceId:HumiditySensor1", "CurrentLevel"], 
+  17: ["urn:upnp-org:serviceId:TemperatureSensor1", "CurrentTemperature"], 
+  18: ["urn:micasaverde-com:serviceId:LightSensor1", "CurrentLevel"] 
 };
 
 /**
@@ -53,7 +53,7 @@ SensorWindow.SensorWindow = function(id, name, category) {
   */
   this.fetchValue = function(id, category) {
     var vals = SensorWindow.categoryMap[category];
-    var url = Settings.option('url') + "id=variableget&DeviceNum=" + id + "&serviceId=urn:upnp-org:serviceId:" + vals[0] + "&Variable=" + vals[1];
+    var url = Settings.option('url') + "id=variableget&DeviceNum=" + id + "&serviceId=" + vals[0] + "&Variable=" + vals[1];
     
     ajax({
       url: url,
