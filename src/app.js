@@ -3,40 +3,13 @@
  *
  * This is where you write your app.
  */
-var UI = require('ui');
 var Settings = require('settings');
 var Auth = require('Auth');
-var LightMenu = require('LightMenu');
-var SceneMenu = require('SceneMenu');
+var MainApp = require('MainApp');
 
-var mainMenu = new UI.Menu({
-  sections: [{
-    items: [{
-      title: 'Lights'
-    }, {
-      title: 'Scenes'
-    }, {
-      title: 'Sensors'
-    }, {
-      title: 'Refresh'
-    }]
-  }]
-});
 
-mainMenu.on('select', function(e) {
-  if (e.item.title == "Lights") {
-    LightMenu.menu.show();    
-  } 
-  else if(e.item.title == "Scenes") {
-    SceneMenu.menu.show();    
-  }
-});
-
-mainMenu.show();
-// Refresh persisted data
-if (Settings.data('data')) refresh();
-// Configure connection type (LAN / Remote)
-//TODO:
+var app = new MainApp.MainApp();
+app.show();
 
 
 // Set a configurable with the open callback
@@ -47,33 +20,9 @@ Settings.config(
     if (e.failed) {
       console.log(e.response);
     } else {
-      Auth.getUserToken(Settings.option('username'), Settings.option('password'), refresh);
+      Auth.getUserToken(Settings.option('username'), Settings.option('password'), app.refresh);
     }
   }
 );
 
-function refresh() {
-  // Get data
-  var data = Settings.data('data');
-  console.log(data);
-  
-  // Get Scenes
-  var scenes = data.scenes;
-  for(var i = 0; i < scenes.length; i++) {
-    SceneMenu.addItem(scenes[i].name, scenes[i].id);
-  }
-  
-  // Get Devices
-  var devices = data.devices;
-  for(i = 0; i < devices.length; i++) {
-    switch (devices[i].category) {
-      case 3:
-        LightMenu.addItem(devices[i].name, devices[i].id);
-        break;
-      case 2:
-        LightMenu.addItem(devices[i].name, devices[i].id);
-        break;  
-    }
-  }
-}
 
