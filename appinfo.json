@@ -28,6 +28,16 @@
                 "file": "fonts/UbuntuMono-Regular.ttf",
                 "name": "MONO_FONT_14",
                 "type": "font"
+            },
+            {
+                "file": "images/light_off.png",
+                "name": "IMAGES_LIGHT_OFF_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/light_on.png",
+                "name": "IMAGES_LIGHT_ON_PNG",
+                "type": "png"
             }
         ]
     },
