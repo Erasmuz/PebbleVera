@@ -4,6 +4,7 @@
 var UI = require('ui');
 var LightMenu = require('LightMenu');
 var SceneMenu = require('SceneMenu');
+var SensorMenu = require('SensorMenu');
 var Settings = require('settings');
 var Auth = require('Auth');
 
@@ -18,6 +19,8 @@ MainApp.MainApp = function () {
   var lightMenu = new LightMenu.LightMenu();
   /** Menu for accessing scenes. */
   var sceneMenu = new SceneMenu.SceneMenu();
+  /** Menu for accessing sensors. */
+  var sensorMenu = new SensorMenu.SensorMenu();
   
   /** On screen menu for the user to select device categories. */
   this.mainMenu = new UI.Menu({
@@ -28,6 +31,8 @@ MainApp.MainApp = function () {
       title: 'Scenes'
     }, {
       title: 'Sensors'
+    }, {
+      title: 'Power Meters'
     }, {
       title: 'Refresh'
     }]
@@ -43,6 +48,9 @@ MainApp.MainApp = function () {
     } 
     else if(e.item.title == "Scenes") {
       sceneMenu.show();    
+    }
+    else if(e.item.title == "Sensors") {
+      sensorMenu.show();
     }
     else if(e.item.title == "Refresh") {
       Auth.getUserToken(Settings.option('username'), Settings.option('password'), this.refresh);
@@ -73,12 +81,23 @@ MainApp.MainApp = function () {
     var devices = data.devices;
     for(i = 0; i < devices.length; i++) {
       switch (devices[i].category) {
-        case 3:
+        case 3:  //Binary Light
           lightMenu.addItem(devices[i].name, devices[i].id);
           break;
-        case 2:
+        case 2:  //Dimmable Light
           lightMenu.addItem(devices[i].name, devices[i].id);
-          break;  
+          break;
+        case 16:  //Humidity Sensor
+          sensorMenu.addItem(devices[i].name, devices[i].id, devices[i].category);
+          break;
+        case 17:  //Temp Sensor
+          sensorMenu.addItem(devices[i].name, devices[i].id, devices[i].category);
+          break;
+        case 18:  //Light Sensor
+          sensorMenu.addItem(devices[i].name, devices[i].id, devices[i].category);
+          break;
+        case 21: // Power Meter
+          break;
       }
     }
   };
