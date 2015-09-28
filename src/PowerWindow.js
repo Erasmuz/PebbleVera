@@ -17,32 +17,38 @@ var PowerWindow = {};
 * @param name - Name of the power meter.
 */
 PowerWindow.PowerWindow = function(id, name, category) {
-  /** ID for the power meter this window will show the value for. */
-  this.id = id;
-  /** Text for kwh. */
-  var kwhText = "";
-  /** Text for watts. */
-  var wattsText = "";
+  // Store a reference to 'this' for use in scope changes (will use this every where to prevent confusion).
+  var self = this;
   
+  /** ID for the power meter this window will show the value for. */
+  self.id = id;
+  /** Text for kwh. */
+  self.kwhText = "";
+  /** Text for watts. */
+  self.wattsText = "";
   
   /** Pebble window object this window is wrapping. */
-  var window = new UI.Card({
+  self.window = new UI.Card({
     fullscreen: true,
-    title: name
+    title: name,
+    action: {
+      select: 'images/refresh.png',
+      background: 'black'
+    }
   });
 
   /** 
   * Show this window.
   */
-  this.show = function() {
-    window.show();
+  self.show = function() {
+    self.window.show();
   };
   
   /**
   * Fetch the current value of a power meter.
   * @param id - The id for the power meter
   */
-  this.fetchValue = function(id, variableName, watts, kwh) {
+  self.fetchValue = function(id, variableName) {
     var url = Settings.option('url') + "id=variableget&DeviceNum=" + id + "&serviceId=urn:micasaverde-com:serviceId:EnergyMetering1&Variable=" + variableName;
     
     ajax({
@@ -53,22 +59,30 @@ PowerWindow.PowerWindow = function(id, name, category) {
     },
       function(data) { 
         console.log("Successfully got sensor data."); 
-        
+
         // Hack to get things to work :(
         if (variableName == "Watts") {
-          wattsText = data;
+          self.wattsText = data;
         } else if (variableName == "KWH") {
-          kwhText = data;
+          self.kwhText = data;
         }
         
-        window.body("Watts: " + wattsText + "\nKWh: " + kwhText);
+        console.log(data);
+        console.log(self.wattsText + " : " + self.kwhText);
+        self.window.body("Watts: " + self.wattsText + "\nKWh: " + self.kwhText);
       },
       function(error) { console.log('Failed to get sensor data: ' + error); }
     );
   };
   
-  this.fetchValue(this.id, "Watts", wattsText);
-  this.fetchValue(this.id, "KWH", kwhText);
+    
+  self.window.on('click', 'select', function(e) {
+    self.fetchValue(self.id, "Watts");
+    self.fetchValue(self.id, "KWH");
+  });
+  
+  self.fetchValue(self.id, "Watts");
+  self.fetchValue(self.id, "KWH");
 };
 
 

@@ -117,6 +117,18 @@ LightWindow.LightWindow = function(id, name, category, subcategory) {
     
     self.slider.position(new Vector2(self.sliderPos, 150));
   });
+  
+  self.window.on('longClick', 'up', function() {
+    self.sliderPos = 90;
+    self.slider.position(new Vector2(self.sliderPos, 150));
+    LightWindow.toggleLight(id, 1);   
+  });
+  
+  self.window.on('longClick', 'down', function() {
+    self.sliderPos = 10;
+    self.slider.position(new Vector2(self.sliderPos, 150));
+    LightWindow.toggleLight(id, 0);   
+  });
 };
 
 /**

@@ -28,13 +28,16 @@ SensorWindow.categoryMap = {
 * For details on categry see: http://wiki.micasaverde.com/index.php/Luup_UPNP_Files
 */
 SensorWindow.SensorWindow = function(id, name, category) {
+  // Store a reference to 'this' for use in scope changes (will use this every where to prevent confusion).
+  var self = this;
+  
   /** ID for the sensor this window will show the value for. */
-  this.id = id;
+  self.id = id;
   /** Category for the sensor. */
-  this.category = category;
+  self.category = category;
   
   /** Pebble window object this window is wrapping. */
-  var window = new UI.Card({
+  self.window = new UI.Card({
     fullscreen: true,
     title: name,
     action: {
@@ -46,8 +49,8 @@ SensorWindow.SensorWindow = function(id, name, category) {
   /** 
   * Show this window.
   */
-  this.show = function() {
-    window.show();
+  self.show = function() {
+    self.window.show();
   };
   
   /**
@@ -55,7 +58,7 @@ SensorWindow.SensorWindow = function(id, name, category) {
   * @param id - The id for the sensor
   * @param category - category number for the sensor
   */
-  this.fetchValue = function(id, category) {
+  self.fetchValue = function(id, category) {
     var vals = SensorWindow.categoryMap[category];
     var url = Settings.option('url') + "id=variableget&DeviceNum=" + id + "&serviceId=" + vals[0] + "&Variable=" + vals[1];
     
@@ -67,17 +70,17 @@ SensorWindow.SensorWindow = function(id, name, category) {
     },
       function(data) { 
         console.log("Successfully got sensor data."); 
-        window.body(data);
+        self.window.body(data);
       },
       function(error) { console.log('Failed to get sensor data: ' + error); }
     );
   };
   
-  window.on('click', 'select', function(e) {
-    SensorWindow.fetchValue(SensorWindow.SensorWindow.id, SensorWindow.SensorWindow.category);
+  self.window.on('click', 'select', function(e) {
+    self.fetchValue(self.id, self.category);
   });
   
-  this.fetchValue(this.id, this.category);
+  self.fetchValue(self.id, self.category);
 };
 
 
