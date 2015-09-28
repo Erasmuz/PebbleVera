@@ -21,17 +21,21 @@ var LightWindow = {};
 * For details on categry see: http://wiki.micasaverde.com/index.php/Luup_UPNP_Files
 */
 LightWindow.LightWindow = function(id, name, category, subcategory) {
+  // Store a reference to 'this' for use in scope changes (will use this every where to prevent confusion).
+  var self = this;
+  
   //Set defaults for category and subcategory.  For future dev.
-  this.category = typeof category !== 'undefined' ? category : 3;
-  this.subcategory = typeof subcategory !== 'undefined' ? subcategory : 0;
+  self.category = typeof category !== 'undefined' ? category : 3;
+  self.subcategory = typeof subcategory !== 'undefined' ? subcategory : 0;
     
   /** ID for the light this window will control. */
-  this.id = id;
+  self.id = id;
   /** Position tracking for the slider. */
-  var sliderPos = 8;
+  self.sliderPos = 10;
+  
   
   /** Pebble window object this window is wrapping. */
-  this.window = new UI.Window({
+  self.window = new UI.Window({
     fullscreen: true,
     action: {
       up: 'images/light_on.png',
@@ -42,9 +46,9 @@ LightWindow.LightWindow = function(id, name, category, subcategory) {
   });
   
   //Make the window white
-  this.window.add(new UI.Rect({ size: new Vector2(144, 168) }));
+  self.window.add(new UI.Rect({ size: new Vector2(144, 168) }));
 
-  this.window.add(new UI.Text({
+  self.window.add(new UI.Text({
     position: new Vector2(0, 0),
     size: new Vector2(120, 30),
     font: 'gothic-28-bold',
@@ -54,51 +58,82 @@ LightWindow.LightWindow = function(id, name, category, subcategory) {
     textAlign: 'left'
   }));
   
-  this.window.add(new UI.Rect({
+  self.window.add(new UI.Rect({
     position: new Vector2(10,150),
     size: new Vector2(80, 3),
     borderColor: 'black',
   }));
   
-  var slider = new UI.Circle({
+  self.slider = new UI.Circle({
     position: new Vector2(10, 150),
     radius:8,
     borderColor: 'black'
   });
-  this.window.add(slider);
+  self.window.add(self.slider);
   
   /** 
   * Show this window.
   */
-  this.show = function() {
-    this.window.show();
+  self.show = function() {
+    self.window.show();
   };
   
   /**
   * Handler for a user selecting the up button on the watch.
   */
-  this.window.on('click', 'up', function() {
-    LightWindow.toggleLight(id, 1);   
-    
-    //Update slider position
-    if (sliderPos < 90) {
-      sliderPos += 10;
-      slider.position(new Vector2(sliderPos, 150));
+  self.window.on('click', 'up', function() {
+    if (self.category == 2) {
+      //Update slider position
+      if (self.sliderPos < 90) {
+        self.sliderPos += 10;
+      }
+      
+      LightWindow.setLightLevel(self.id, self.sliderPos - 10);
+      
+    } else if (self.category == 3) {
+      self.sliderPos = 90;
+      LightWindow.toggleLight(id, 1);   
     }
+    
+    self.slider.position(new Vector2(self.sliderPos, 150));
   });
   
   /**
   * Handler for a user selecting the down button on the watch.
   */
-  this.window.on('click', 'down', function() {
-    LightWindow.toggleLight(id, 0); 
-    
-    //Update slider position
-    if (sliderPos > 10) {
-      sliderPos -= 10;
-      slider.position(new Vector2(sliderPos, 150));
+  self.window.on('click', 'down', function() {
+    if (self.category == 2) {
+      //Update slider position
+      if (self.sliderPos > 10) {
+        self.sliderPos -= 10;
+      }
+      
+      LightWindow.setLightLevel(self.id, self.sliderPos - 10);
+      
+    } else if (self.category == 3) {
+      self.sliderPos = 10;
+      LightWindow.toggleLight(id, 0);   
     }
+    
+    self.slider.position(new Vector2(self.sliderPos, 150));
   });
+};
+
+/**
+* Sets the value for a dimmable light
+* @param id - The id for the light to set the value for
+* @param value - 0-100 for the level to set the dimmable light to
+*/
+LightWindow.setLightLevel = function(id, value) {
+  ajax({
+    url: Settings.option('url') + "id=action&output_format=json&DeviceNum=" + id + "&serviceId=urn:upnp-org:serviceId:Dimming1&action=SetLoadLevelTarget&newLoadlevelTarget=" + value,
+    type: "GET",
+    dataType: "json",
+    headers: Settings.option('headers')
+  },
+    function(data) { console.log("Successfully ran scene."); },
+    function(error) { console.log('Failed to run scene: ' + error); }
+  );
 };
 
 /**

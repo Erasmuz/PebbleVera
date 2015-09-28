@@ -91,7 +91,7 @@ MainApp.MainApp = function () {
           lightMenu.addItem(devices[i].name, devices[i].id);
           break;
         case 2:  //Dimmable Light
-          lightMenu.addItem(devices[i].name, devices[i].id);
+          lightMenu.addItem(devices[i].name, devices[i].id, devices[i].category);
           break;
         case 16:  //Humidity Sensor
           sensorMenu.addItem(devices[i].name, devices[i].id, devices[i].category);

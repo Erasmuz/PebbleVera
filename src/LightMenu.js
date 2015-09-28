@@ -23,8 +23,8 @@ LightMenu.LightMenu = function() {
   * @param name - Name of the scene
   * @param id - ID of the scene
   */
-  this.addItem = function(name, id) {
-    this.menu.item(0, this.itemCount, { title: name, id: id });
+  this.addItem = function(name, id, category) {
+    this.menu.item(0, this.itemCount, { title: name, id: id, category: category });
     this.itemCount++;
   };
 
@@ -41,7 +41,7 @@ LightMenu.LightMenu = function() {
   * the user to control it.
   */
   this.menu.on('select', function(e) {
-    var lightWindow = new LightWindow.LightWindow(e.item.id, e.item.title);
+    var lightWindow = new LightWindow.LightWindow(e.item.id, e.item.title, e.item.category);
     lightWindow.show();
   });
 };
