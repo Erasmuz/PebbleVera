@@ -30,6 +30,11 @@
                 "type": "font"
             },
             {
+                "file": "images/refresh.png",
+                "name": "IMAGES_REFRESH_PNG",
+                "type": "png"
+            },
+            {
                 "file": "images/light_off.png",
                 "name": "IMAGES_LIGHT_OFF_PNG",
                 "type": "png"
@@ -45,7 +50,7 @@
     "shortName": "Vera",
     "uuid": "001da220-2a64-43b8-b1cf-0c7d9b27c9da",
     "versionCode": 1,
-    "versionLabel": "1.0",
+    "versionLabel": "1.1",
     "watchapp": {
         "hiddenApp": false,
         "watchface": false

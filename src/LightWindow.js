@@ -3,6 +3,7 @@
 /** Import stuffs */
 var UI = require('ui');
 var Settings = require('settings');
+var Vector2 = require('vector2');
 var ajax = require('ajax');
 
 /**
@@ -26,18 +27,46 @@ LightWindow.LightWindow = function(id, name, category, subcategory) {
     
   /** ID for the light this window will control. */
   this.id = id;
+  /** Position tracking for the slider. */
+  var sliderPos = 8;
   
   /** Pebble window object this window is wrapping. */
-  this.window = new UI.Card({
+  this.window = new UI.Window({
     fullscreen: true,
-    title: name,
     action: {
       up: 'images/light_on.png',
       down: 'images/light_off.png',
+      select: 'images/refresh.png',
       background: 'black'
     }
   });
+  
+  //Make the window white
+  this.window.add(new UI.Rect({ size: new Vector2(144, 168) }));
 
+  this.window.add(new UI.Text({
+    position: new Vector2(0, 0),
+    size: new Vector2(120, 30),
+    font: 'gothic-28-bold',
+    text: name,
+    textOverflow: 'wrap',
+    color: 'black',
+    textAlign: 'left'
+  }));
+  
+  this.window.add(new UI.Rect({
+    position: new Vector2(10,150),
+    size: new Vector2(80, 3),
+    borderColor: 'black',
+  }));
+  
+  var slider = new UI.Circle({
+    position: new Vector2(10, 150),
+    radius:8,
+    borderColor: 'black'
+  });
+  this.window.add(slider);
+  
   /** 
   * Show this window.
   */
@@ -50,6 +79,12 @@ LightWindow.LightWindow = function(id, name, category, subcategory) {
   */
   this.window.on('click', 'up', function() {
     LightWindow.toggleLight(id, 1);   
+    
+    //Update slider position
+    if (sliderPos < 90) {
+      sliderPos += 10;
+      slider.position(new Vector2(sliderPos, 150));
+    }
   });
   
   /**
@@ -57,6 +92,12 @@ LightWindow.LightWindow = function(id, name, category, subcategory) {
   */
   this.window.on('click', 'down', function() {
     LightWindow.toggleLight(id, 0); 
+    
+    //Update slider position
+    if (sliderPos > 10) {
+      sliderPos -= 10;
+      slider.position(new Vector2(sliderPos, 150));
+    }
   });
 };
 

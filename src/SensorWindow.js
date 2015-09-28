@@ -36,7 +36,11 @@ SensorWindow.SensorWindow = function(id, name, category) {
   /** Pebble window object this window is wrapping. */
   var window = new UI.Card({
     fullscreen: true,
-    title: name
+    title: name,
+    action: {
+      select: 'images/refresh.png',
+      background: 'black'
+    }
   });
 
   /** 
@@ -68,6 +72,10 @@ SensorWindow.SensorWindow = function(id, name, category) {
       function(error) { console.log('Failed to get sensor data: ' + error); }
     );
   };
+  
+  window.on('click', 'select', function(e) {
+    SensorWindow.fetchValue(SensorWindow.SensorWindow.id, SensorWindow.SensorWindow.category);
+  });
   
   this.fetchValue(this.id, this.category);
 };
