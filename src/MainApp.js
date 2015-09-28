@@ -5,6 +5,7 @@ var UI = require('ui');
 var LightMenu = require('LightMenu');
 var SceneMenu = require('SceneMenu');
 var SensorMenu = require('SensorMenu');
+var PowerMenu = require('PowerMenu');
 var Settings = require('settings');
 var Auth = require('Auth');
 
@@ -21,6 +22,8 @@ MainApp.MainApp = function () {
   var sceneMenu = new SceneMenu.SceneMenu();
   /** Menu for accessing sensors. */
   var sensorMenu = new SensorMenu.SensorMenu();
+  /** Menu for accessing power meters. */
+  var powerMenu = new PowerMenu.PowerMenu();
   
   /** On screen menu for the user to select device categories. */
   this.mainMenu = new UI.Menu({
@@ -51,6 +54,9 @@ MainApp.MainApp = function () {
     }
     else if(e.item.title == "Sensors") {
       sensorMenu.show();
+    }
+    else if(e.item.title == "Power Meters") {
+      powerMenu.show();
     }
     else if(e.item.title == "Refresh") {
       Auth.getUserToken(Settings.option('username'), Settings.option('password'), this.refresh);
@@ -97,6 +103,7 @@ MainApp.MainApp = function () {
           sensorMenu.addItem(devices[i].name, devices[i].id, devices[i].category);
           break;
         case 21: // Power Meter
+          powerMenu.addItem(devices[i].name, devices[i].id);
           break;
       }
     }
