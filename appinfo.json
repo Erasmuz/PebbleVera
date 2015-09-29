@@ -30,6 +30,16 @@
                 "type": "font"
             },
             {
+                "file": "images/light_on_large.png",
+                "name": "IMAGES_LIGHT_ON_LARGE_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/light_off_large.png",
+                "name": "IMAGES_LIGHT_OFF_LARGE_PNG",
+                "type": "png"
+            },
+            {
                 "file": "images/refresh.png",
                 "name": "IMAGES_REFRESH_PNG",
                 "type": "png"

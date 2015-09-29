@@ -58,6 +58,14 @@ LightWindow.LightWindow = function(id, name, category, subcategory) {
     textAlign: 'left'
   }));
   
+  self.image = new UI.Image({
+    position: new Vector2(0, 0),
+    size: new Vector2(120, 168),
+    image: 'images/light_off_large.png',
+    compositing: 'set'
+  });
+  self.window.add(self.image);
+  
   self.window.add(new UI.Rect({
     position: new Vector2(10,150),
     size: new Vector2(80, 3),
@@ -83,7 +91,6 @@ LightWindow.LightWindow = function(id, name, category, subcategory) {
   */
   self.window.on('click', 'up', function() {
     if (self.category == 2) {
-      //Update slider position
       if (self.sliderPos < 90) {
         self.sliderPos += 10;
       }
@@ -92,9 +99,10 @@ LightWindow.LightWindow = function(id, name, category, subcategory) {
       
     } else if (self.category == 3) {
       self.sliderPos = 90;
-      LightWindow.toggleLight(id, 1);   
+      LightWindow.toggleLight(id, 1);
     }
     
+    self.image.image('images/light_on_large.png');
     self.slider.position(new Vector2(self.sliderPos, 150));
   });
   
@@ -112,7 +120,11 @@ LightWindow.LightWindow = function(id, name, category, subcategory) {
       
     } else if (self.category == 3) {
       self.sliderPos = 10;
-      LightWindow.toggleLight(id, 0);   
+      LightWindow.toggleLight(id, 0);
+    }
+    
+    if (self.sliderPos <= 10) {
+      self.image.image('images/light_off_large.png');
     }
     
     self.slider.position(new Vector2(self.sliderPos, 150));
@@ -121,15 +133,87 @@ LightWindow.LightWindow = function(id, name, category, subcategory) {
   self.window.on('longClick', 'up', function() {
     self.sliderPos = 90;
     self.slider.position(new Vector2(self.sliderPos, 150));
-    LightWindow.toggleLight(id, 1);   
+    LightWindow.toggleLight(id, 1);
+    self.image.image('images/light_on_large.png');
   });
   
   self.window.on('longClick', 'down', function() {
     self.sliderPos = 10;
     self.slider.position(new Vector2(self.sliderPos, 150));
-    LightWindow.toggleLight(id, 0);   
+    LightWindow.toggleLight(id, 0);
+    self.image.image('images/light_off_large.png');
   });
+  
+  /**
+  * Polls veras current value for a light to update the window slider and icon.
+  */
+  self.pollLightLevel = function() {
+    var url = Settings.option('url');
+    if (self.category == 2) {
+      url += "id=variableget&DeviceNum=" + self.id + "&serviceId=urn:upnp-org:serviceId:Dimming1&Variable=LoadLevelStatus";
+    } else if (self.category == 3) {
+      url += "id=variableget&DeviceNum=" + self.id + "&serviceId=urn:upnp-org:serviceId:SwitchPower1&Variable=Status";  
+    }
+    
+    ajax({
+      url: url,
+      type: "GET",
+      dataType: "json",
+      headers: Settings.option('headers')
+    },
+      function(data) { 
+        console.log("Successfully ran scene."); 
+        console.log(data);
+        
+        data = parseInt(data);
+        if (self.category == 2) {
+          if (data === 0) {
+            self.image.image('images/light_off_large.png');
+            self.setSlider(0);
+          } else {
+            self.image.image('images/light_on_large.png');
+            //TODO: FIX THIS!
+            self.setSlider(data - 10);
+          }
+          
+        } else if (self.category == 3) {
+          console.log(data);
+          if (data === 0) {
+            console.log("OFF");
+            self.setSlider(0);
+            self.image.image('images/light_off_large.png');
+          } else {
+            console.log("ON");
+            self.setSlider(80);
+            self.image.image('images/light_on_large.png');
+          }
+        }
+        
+      },
+      function(error) { console.log('Failed to run scene: ' + error); }
+    );
+  };
+
+  /**
+  * Handler for select button being pushed.
+  */
+  self.window.on('click', 'select', function(e) {
+    self.pollLightLevel();
+  });
+  
+  /**
+  * Sets the slider position
+  * @param value - The value to set the slider to.
+  */
+  self.setSlider = function(value) {
+    self.sliderPos = value + 10;
+    self.slider.position(new Vector2(self.sliderPos, 150));
+  };
+  
+  self.pollLightLevel();
 };
+
+
 
 /**
 * Sets the value for a dimmable light

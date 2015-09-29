@@ -88,7 +88,7 @@ MainApp.MainApp = function () {
     for(i = 0; i < devices.length; i++) {
       switch (devices[i].category) {
         case 3:  //Binary Light
-          lightMenu.addItem(devices[i].name, devices[i].id);
+          lightMenu.addItem(devices[i].name, devices[i].id, devices[i].category);
           break;
         case 2:  //Dimmable Light
           lightMenu.addItem(devices[i].name, devices[i].id, devices[i].category);
