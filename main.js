@@ -20,12 +20,12 @@ function loadOptions() {
 }
 
 function getAndStoreConfigData() {
-  var $username = $('#username').toLowerCase();
-  var $password = $('#password').toLowerCase();
+  var $username = $('#username');
+  var $password = $('#password');
   
   var options = {
-    username: $username.val(),
-    password: $password.val()
+    username: $username.val().toLowerCase(),
+    password: $password.val().toLowerCase()
   }
   
   localStorage.username = options.username;
