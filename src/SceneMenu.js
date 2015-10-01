@@ -52,6 +52,14 @@ SceneMenu.SceneMenu = function() {
       function(error) { console.log('Failed to run scene: ' + error); }
     );   
   });
+  
+  /**
+  * Clears the menu.
+  */
+  this.clear = function() {
+    this.menu.items(0, []);
+    this.itemCount = 0;
+  };
 };
 
 /** Exporting module for use in other files. */

@@ -44,6 +44,15 @@ LightMenu.LightMenu = function() {
     var lightWindow = new LightWindow.LightWindow(e.item.id, e.item.title, e.item.category);
     lightWindow.show();
   });
+  
+  /**
+  * Clears the menu.
+  */
+  this.clear = function() {
+    this.menu.items(0, []);
+    this.itemCount = 0;
+  };
+  
 };
 
 /** Export javascript module for other files to use. */

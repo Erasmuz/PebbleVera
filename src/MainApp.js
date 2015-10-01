@@ -7,6 +7,7 @@ var SceneMenu = require('SceneMenu');
 var SensorMenu = require('SensorMenu');
 var PowerMenu = require('PowerMenu');
 var Settings = require('settings');
+//var CameraMenu = require('CameraMenu');
 var Auth = require('Auth');
 
 /**
@@ -16,6 +17,9 @@ var Auth = require('Auth');
 var MainApp = {};
 
 MainApp.MainApp = function () {
+  /* Instance of 'this' for reference. */
+  var self = this;
+  
   /** Menu for accessing lights. */
   var lightMenu = new LightMenu.LightMenu();
   /** Menu for accessing scenes. */
@@ -24,6 +28,8 @@ MainApp.MainApp = function () {
   var sensorMenu = new SensorMenu.SensorMenu();
   /** Menu for accessing power meters. */
   var powerMenu = new PowerMenu.PowerMenu();
+  /** Menu for accessing cameras. */
+  //var cameraMenu = new CameraMenu.CameraMenu();
   
   /** On screen menu for the user to select device categories. */
   this.mainMenu = new UI.Menu({
@@ -57,9 +63,11 @@ MainApp.MainApp = function () {
     }
     else if(e.item.title == "Power Meters") {
       powerMenu.show();
+    } else if(e.item.title == "Cameras") {
+      //cameraMenu.show();
     }
     else if(e.item.title == "Refresh") {
-      Auth.getUserToken(Settings.option('username'), Settings.option('password'), this.refresh);
+      Auth.getUserToken(Settings.option('username'), Settings.option('password'), self.refresh);
     }
   });
   
@@ -74,6 +82,13 @@ MainApp.MainApp = function () {
   * Refreshes all data/menus in the application.
   */
   this.refresh = function() {
+    // Clear all the menus...
+    lightMenu.clear();
+    sceneMenu.clear();
+    sensorMenu.clear();
+    powerMenu.clear();
+    //cameraMenu.clear();
+    
     // Get data
     var data = Settings.data('data');
     
@@ -93,6 +108,9 @@ MainApp.MainApp = function () {
         case 2:  //Dimmable Light
           lightMenu.addItem(devices[i].name, devices[i].id, devices[i].category);
           break;
+        //case 6:  //Camera
+        //  cameraMenu.addItem(devices[i].name, devices[i].id);
+        //  break;
         case 16:  //Humidity Sensor
           sensorMenu.addItem(devices[i].name, devices[i].id, devices[i].category);
           break;

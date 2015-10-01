@@ -2,26 +2,26 @@
 'use strict';
 /** Import Stuffs. */
 var UI = require('ui');
-var PowerWindow = require('PowerWindow');
+var CameraWindow = require('CameraWindow');
 
 /**
-* Menu class for listing power meters available for a user to view.
+* Menu class for listing cameras available for a user to view.
 */
-var PowerMenu = {};
+var CameraMenu = {};
 
 /**
-* Constructor for a poweer meter menu.
+* Constructor for a camera menu.
 */
-PowerMenu.PowerMenu = function() {
+CameraMenu.CameraMenu = function() {
   /** Pebble menu object this class is wrapping. */
   this.menu = new UI.Menu();
   /** Count of items in the list. */
   this.itemCount = 0;
 
   /**
-  * Adds an item to the power meter menu.
-  * @param name - Name of the meter
-  * @param id - ID of the meter
+  * Adds an item to the camera menu.
+  * @param name - Name of the camera
+  * @param id - ID of the camera
   */
   this.addItem = function(name, id) {
     this.menu.item(0, this.itemCount, { title: name, id: id });
@@ -36,12 +36,12 @@ PowerMenu.PowerMenu = function() {
   };
   
   /**
-  * Handler for a user selecting a meter in the list.
-  * Creates a new meter window to show details about the meter
+  * Handler for a user selecting a camera in the list.
+  * Creates a new camera window to show an image from the camera
   */
   this.menu.on('select', function(e) {
-    var powerWindow = new PowerWindow.PowerWindow(e.item.id, e.item.title);
-    powerWindow.show();
+    var cameraWindow = new CameraWindow.CameraWindow(e.item.id, e.item.title);
+    cameraWindow.show();
   });
   
   /**
@@ -54,5 +54,5 @@ PowerMenu.PowerMenu = function() {
 };
 
 /** Export javascript module for other files to use. */
-if (typeof module != 'undefined' && module.exports) module.exports = PowerMenu; // CommonJs export
-if (typeof define == 'function' && define.amd) define([], function() { return PowerMenu; }); // AMD
+if (typeof module != 'undefined' && module.exports) module.exports = CameraMenu; // CommonJs export
+if (typeof define == 'function' && define.amd) define([], function() { return CameraMenu; }); // AMD
