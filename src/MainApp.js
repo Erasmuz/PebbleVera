@@ -128,7 +128,8 @@ MainApp.MainApp = function () {
   };
   
   // Refresh persisted data
-  if (Settings.data('data')) this.refresh();
+  //if (Settings.data('data')) this.refresh();
+  Auth.getUserToken(Settings.option('username'), Settings.option('password'), self.refresh);
   // Configure connection type (LAN / Remote)
   //TODO:
 };
